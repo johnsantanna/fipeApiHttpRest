@@ -7,6 +7,7 @@ import br.com.fipeApiHttpRest.service.ConverteDados;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.Scanner;
 
 public class Principal {
@@ -59,6 +60,21 @@ public class Principal {
 
         Modelos modelos = conversor.obterDados(json, Modelos.class);
         modelos.modelos().stream().sorted(Comparator.comparing(Dados::nome)).forEach(System.out::println);
+
+        System.out.println("Informe uma parte do modelo que deseja consultar...");
+        String descModelo = leitura.next();
+        String codModelo = modelos.modelos().stream().filter(n -> n.nome().contains(descModelo.toUpperCase())).findFirst().map(Dados::codigo).orElse(null);
+        if (codModelo != null){
+            endereco += "/" +  codModelo + "/anos";
+            json = consumo.obterDados(endereco);
+            List<Dados> anos = conversor.obterListaDados(json, Dados.class);
+            anos.stream().sorted(Comparator.comparing(Dados::nome)).forEach(System.out::println);
+        } else{
+            System.out.println("Modelo não encontrado!");
+        }
+
+        // DESCOBRIR PORQUE ESTÁ BUSCANDO APENAS 'GLX' INVÉS DE 'GLX 1.4" COM ESPAÇO SEGUIDO DE 1.4
+
 
     }
 }

@@ -1,4 +1,4 @@
 package br.com.fipeApiHttpRest.models;
 
-public record Dados(int codigo, String nome) {
+public record Dados(String codigo, String nome) {
 }
