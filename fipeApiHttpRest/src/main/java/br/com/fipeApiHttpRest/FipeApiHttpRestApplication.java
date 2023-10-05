@@ -16,7 +16,9 @@ public class FipeApiHttpRestApplication implements CommandLineRunner {
 	public void run(String... args) throws Exception {
 
 		Principal principal = new Principal();
-		principal.exibeMenu();
+		while (Principal.retorno == 0){
+			principal.exibeMenu();
+		}
 		System.out.println("FIM DO PROGRAMA!");
 
 	}

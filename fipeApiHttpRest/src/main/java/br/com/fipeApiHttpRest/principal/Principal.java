@@ -5,32 +5,41 @@ import br.com.fipeApiHttpRest.models.Modelos;
 import br.com.fipeApiHttpRest.service.ConsumoApi;
 import br.com.fipeApiHttpRest.service.ConverteDados;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.Scanner;
+import java.util.*;
 
 public class Principal {
 
-    private Scanner leitura = new Scanner(System.in);
+    //private Scanner leitura = new Scanner(System.in);
     private final String URL_BASE = "https://parallelum.com.br/fipe/api/v1/";
     private ConsumoApi consumo = new ConsumoApi();
     private ConverteDados conversor = new ConverteDados();
+    private int opcao = 0;
+    public static int retorno = 0;
 
-    public void exibeMenu() {
+    public void exibeMenu() throws InterruptedException {
         var menu = """
-                \u001B[32m----TABELA FIPE VERSAO LINHA DE COMANDO----\u001B[0m"
+                \u001B[32m----TABELA FIPE VERSAO LINHA DE COMANDO----"
                 
                 **** Opções ****
                 
-                (1) Carro
-                (2) Moto
-                (3) Caminhão
+                \u001B[33m(1) Carro
+                \u001B[34m(2) Moto
+                \u001B[35m(3) Caminhão
                 
-                \u001B[33mDigite abaixo uma das opções para consultar valores\u001B[0m
+                \u001B[31m(9) Sair...
+                
+                \u001B[32mDigite abaixo uma das opções para consultar valores\u001B[0m
                 """;
         System.out.print(menu);
-        int opcao = leitura.nextInt();
+        try {
+            opcao = new Scanner(System.in).nextInt();
+        } catch (InputMismatchException e){
+            System.out.println("OCORREU UM ERRO: "+e.getMessage());
+            System.out.println("aguarde...");
+            Thread.sleep(2000);
+            retorno = 0;
+            return;
+        }
         String endereco;
 
         switch (opcao){
@@ -43,10 +52,20 @@ public class Principal {
             case 3:
                 endereco = URL_BASE + "caminhoes/marcas";
                 break;
+            case 9:
+                System.out.println("Saindo do programa...");
+                Thread.sleep(1000);
+                System.out.println("aguarde...");
+                Thread.sleep(1000);
+                retorno = 1;
+                return;
             default:
-                endereco = URL_BASE + "carros/marcas";
+                System.out.println("OPÇÃO INVÁLIDA!");
+                System.out.println("aguarde...");
+                Thread.sleep(2000);
+                retorno = 0;
+                return;
         }
-
         var json = consumo.obterDados(endereco);
         //System.out.println(json);
 
@@ -54,16 +73,24 @@ public class Principal {
         marcas.stream().sorted(Comparator.comparing(Dados::codigo)).forEach(System.out::println);
 
         System.out.println("Informe o código da marca para consulta.");
-        String codMarca = leitura.next();
+        String codMarca = new Scanner(System.in).nextLine();
         endereco += "/" +  codMarca + "/modelos";
-        json = consumo.obterDados(endereco);
+        if (marcas.stream().anyMatch(n -> n.codigo().equals(codMarca))){
+            json = consumo.obterDados(endereco);
+        } else {
+            System.out.println("CODIGO INVALIDO!");
+            System.out.println("aguarde...");
+            Thread.sleep(2000);
+            retorno = 0;
+            return;
+        }
 
         Modelos modelos = conversor.obterDados(json, Modelos.class);
         modelos.modelos().stream().sorted(Comparator.comparing(Dados::nome)).forEach(System.out::println);
 
         System.out.println("Informe uma parte do modelo que deseja consultar...");
-        String descModelo = leitura.next();
-        String codModelo = modelos.modelos().stream().filter(n -> n.nome().contains(descModelo.toUpperCase())).findFirst().map(Dados::codigo).orElse(null);
+        String descModelo = new Scanner(System.in).nextLine().toUpperCase();
+        String codModelo = modelos.modelos().stream().filter(n -> n.nome().toUpperCase().contains(descModelo)).findFirst().map(Dados::codigo).orElse(null);
         if (codModelo != null){
             endereco += "/" +  codModelo + "/anos";
             json = consumo.obterDados(endereco);
@@ -71,11 +98,12 @@ public class Principal {
             anos.stream().sorted(Comparator.comparing(Dados::nome)).forEach(System.out::println);
         } else{
             System.out.println("Modelo não encontrado!");
+            System.out.println("aguarde...");
+            Thread.sleep(2000);
+            retorno = 0;
+            return;
         }
-
-        // DESCOBRIR PORQUE ESTÁ BUSCANDO APENAS 'GLX' INVÉS DE 'GLX 1.4" COM ESPAÇO SEGUIDO DE 1.4
-
-
+        retorno = 1;
     }
 }
 
