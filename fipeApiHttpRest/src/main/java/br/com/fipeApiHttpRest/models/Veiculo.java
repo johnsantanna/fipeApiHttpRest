@@ -1,7 +1,7 @@
 package br.com.fipeApiHttpRest.models;
 
 public record Veiculo(int TipoVeiculo,
-                      double Valor,
+                      String Valor,
                       String Marca,
                       String Modelo,
                       int AnoModelo,
