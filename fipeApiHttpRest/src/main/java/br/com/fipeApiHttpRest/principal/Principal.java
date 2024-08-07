@@ -76,6 +76,7 @@ public class Principal {
 
         System.out.println("Informe o código da marca para consulta.");
         String codMarca = new Scanner(System.in).nextLine();
+
         endereco += "/" +  codMarca + "/modelos";
         if (marcas.stream().anyMatch(n -> n.codigo().equals(codMarca))){
             json = consumo.obterDados(endereco);
@@ -88,12 +89,16 @@ public class Principal {
         }
 
         Modelos modelos = conversor.obterDados(json, Modelos.class);
-        modelos.modelos().stream().sorted(Comparator.comparing(Dados::nome)).forEach(System.out::println);
+        modelos.modelos().stream()
+                .sorted(Comparator.comparing(Dados::nome))
+                .forEach(System.out::println);
 
         System.out.println("Informe uma parte do modelo que deseja consultar...");
         String descModelo = new Scanner(System.in).nextLine().toUpperCase();
 
-        modelos.modelos().stream().filter(n -> n.nome().toUpperCase().contains(descModelo)).forEach(System.out::println);
+        modelos.modelos().stream()
+                .filter(n -> n.nome().toUpperCase().contains(descModelo))
+                .forEach(System.out::println);
 
         System.out.println("Informe o código do modelo que deseja ver os valores.");
         String codModelo = new Scanner(System.in).nextLine().toUpperCase();
